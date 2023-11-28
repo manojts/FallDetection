@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Fall Detection</string>
     <string name="login">Login</string>
     <string name="email">Email</string>
     <string name="password">Password</string>
@@ -11,4 +11,8 @@
     <string name="start_monitor">Start Monitor</string>
     <string name="stop_monitor">Stop Monitor</string>
     <string name="back">Back</string>
+    <string name="emergencyContactName">Emergency Contact Name</string>
+    <string name="emergencyContactNumber">Emergency Contact Number</string>
+    <string name="profile">Profile</string>
+    <string name="update_profile">Update Profile</string>
 </resources>

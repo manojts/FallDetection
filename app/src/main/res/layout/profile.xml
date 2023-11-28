@@ -7,10 +7,10 @@
     android:gravity="center"
     android:layout_height="match_parent"
     android:layout_margin="10sp"
-    tools:context=".RegisterUser">
+    tools:context=".Profile">
 
     <TextView
-        android:text="@string/register"
+        android:text="@string/profile"
         android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
@@ -44,17 +44,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/password"
-            android:hint="@string/password"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-        </com.google.android.material.textfield.TextInputEditText>
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/emergencyContactName"
             android:hint="@string/emergencyContactName"
             android:layout_width="match_parent"
@@ -79,22 +68,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <Button
-        android:id="@+id/registerButton"
-        android:text="@string/register"
+        android:id="@+id/update_profile"
+        android:text="@string/update_profile"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
     </Button>
-    <TextView
-        android:id="@+id/loginNow"
-        android:text="@string/click_to_login"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:layout_marginTop="20dp"
-        android:gravity="center"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-    </TextView>
 
 </LinearLayout>

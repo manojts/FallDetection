@@ -82,6 +82,7 @@ public class SensorMonitor extends AppCompatActivity implements SensorEventListe
             GyroscopeY.setText("Y: "+sensorEvent.values[1]);
             GyroscopeZ.setText("Z: "+sensorEvent.values[2]);
         }
+
     }
 
     @Override

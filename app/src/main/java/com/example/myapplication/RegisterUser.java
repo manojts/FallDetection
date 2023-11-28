@@ -19,11 +19,15 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterUser extends AppCompatActivity {
-    TextInputEditText textEmail, textPassword;
+    TextInputEditText textEmail, textPassword, username, emergencyContactName, emergencyContactNumber;
     Button button;
     FirebaseAuth mAuth;
+    FirebaseDatabase db;
+    DatabaseReference reference;
     ProgressBar progressbar;
     TextView textView;
     @Override
@@ -42,6 +46,9 @@ public class RegisterUser extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         textEmail = findViewById(R.id.email);
         textPassword = findViewById(R.id.password);
+        username = findViewById(R.id.username);
+        emergencyContactName = findViewById(R.id.emergencyContactName);
+        emergencyContactNumber = findViewById(R.id.emergencyContactNumber);
         button = findViewById(R.id.registerButton);
         progressbar = findViewById(R.id.progressbar);
         textView = findViewById(R.id.loginNow);
@@ -59,8 +66,14 @@ public class RegisterUser extends AppCompatActivity {
             public void onClick(View view) {
                 String email;
                 String password;
+                String userName;
+                String emergency_ContactName ;
+                String emergency_ContactNumber;
                 email = String.valueOf(textEmail.getText());
                 password= String.valueOf(textPassword.getText());
+                userName = String.valueOf(username.getText());
+                emergency_ContactName= String.valueOf(emergencyContactName.getText());
+                emergency_ContactNumber = String.valueOf(emergencyContactNumber.getText());
                 progressbar.setVisibility(View.VISIBLE);
                 if(TextUtils.isEmpty(email)){
                     Toast.makeText(RegisterUser.this, "Email cannot be empty", Toast.LENGTH_SHORT).show();
@@ -68,6 +81,18 @@ public class RegisterUser extends AppCompatActivity {
                 }
                 if(TextUtils.isEmpty(password)){
                     Toast.makeText(RegisterUser.this, "Password cannot be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(userName)){
+                    Toast.makeText(RegisterUser.this, "User Name cannot be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(emergency_ContactName)){
+                    Toast.makeText(RegisterUser.this, "Emergency Contact Name cannot be empty", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(emergency_ContactNumber)){
+                    Toast.makeText(RegisterUser.this, "Emergency Contact Number cannot be empty", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -78,6 +103,28 @@ public class RegisterUser extends AppCompatActivity {
                                 if (task.isSuccessful()) {
                                     // Sign in success, update UI with the signed-in user's information
 //                                    FirebaseUser user = mAuth.getCurrentUser();
+                                    String uid = task.getResult().getUser().getUid();
+                                    User user = new User(userName, email, emergency_ContactName, emergency_ContactNumber);
+                                    user.setUserId(uid);
+                                    storeUserData(uid, user);
+//                                    System.out.println(uid);
+//                                    System.out.println(user.toString());
+//                                    db = FirebaseDatabase.getInstance();
+//                                    reference = db.getReference("UserData");
+//                                    reference.child(uid).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Void> task) {
+//                                            if (task.isSuccessful()) {
+//                                                Toast.makeText(RegisterUser.this, "Account created.",
+//                                                        Toast.LENGTH_SHORT).show();
+//                                            } else {
+//                                                Toast.makeText(RegisterUser.this, "Unable to Create Account.",
+//                                                        Toast.LENGTH_SHORT).show();
+//                                            }
+//                                        }
+//                                    });
+
+
                                     Toast.makeText(RegisterUser.this, "Account created.",
                                             Toast.LENGTH_SHORT).show();
                                     progressbar.setVisibility(View.GONE);
@@ -93,6 +140,27 @@ public class RegisterUser extends AppCompatActivity {
                                 }
                             }
                         });
+            }
+        });
+    }
+    public void storeUserData(String uid, User user) {
+        db = FirebaseDatabase.getInstance();
+        reference = db.getReference("UserData");
+        Log.d("storeUserData", db.toString());
+        Log.d("storeUserData", String.valueOf(reference));
+        reference.child(uid).setValue(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(RegisterUser.this, "Account created.",
+                                                       Toast.LENGTH_SHORT).show();
+                    // Data successfully written to the database
+                } else {
+                    Toast.makeText(RegisterUser.this, "Unable to Create Account.",
+                                                        Toast.LENGTH_SHORT).show();
+                    // If writing fails, handle the error
+                    // task.getException().getMessage() contains the error message
+                }
             }
         });
     }
