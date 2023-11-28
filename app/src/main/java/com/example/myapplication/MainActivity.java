@@ -38,7 +38,6 @@ public class  MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mainActivity = new MainActivity();
         mAuth = FirebaseAuth.getInstance();
-        button = findViewById(R.id.logout);
         button_startMonitor = findViewById(R.id.start_monitor);
         button_stopMonitor = findViewById(R.id.stop_monitor);
         menu_bar = findViewById(R.id.menu_bar);
@@ -52,15 +51,7 @@ public class  MainActivity extends AppCompatActivity {
         else{
             System.out.println(user.getDisplayName());
         }
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
-                Intent intent = new Intent(getApplicationContext(), LoginUser.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+
         button_startMonitor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
