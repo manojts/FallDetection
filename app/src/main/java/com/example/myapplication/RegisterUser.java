@@ -101,8 +101,6 @@ public class RegisterUser extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
-                                    // Sign in success, update UI with the signed-in user's information
-//                                    FirebaseUser user = mAuth.getCurrentUser();
                                     String uid = task.getResult().getUser().getUid();
                                     User user = new User(userName, email, emergency_ContactName, emergency_ContactNumber);
                                     user.setUserId(uid);
@@ -123,8 +121,6 @@ public class RegisterUser extends AppCompatActivity {
 //                                            }
 //                                        }
 //                                    });
-
-
                                     Toast.makeText(RegisterUser.this, "Account created.",
                                             Toast.LENGTH_SHORT).show();
                                     progressbar.setVisibility(View.GONE);

@@ -2,6 +2,7 @@ package com.example.myapplication;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.hardware.Sensor;
@@ -20,9 +21,11 @@ public class SensorMonitor extends AppCompatActivity implements SensorEventListe
     SensorManager manager;
     Sensor acclerometerSensor;
     Sensor gyroScopeSensor;
-    TextView AccelerometerX, AccelerometerY, AccelerometerZ;
-    TextView GyroscopeX, GyroscopeY, GyroscopeZ;
+    TextView AccelerometerX, AccelerometerY, AccelerometerZ,AccelerometerAmpltd;
+    TextView GyroscopeX, GyroscopeY, GyroscopeZ, GyroscopeAmpltd;
     Button button;
+    Double AccelerometerAmplitude, GyroscopeAmplitude;
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,9 +59,11 @@ public class SensorMonitor extends AppCompatActivity implements SensorEventListe
         AccelerometerX = (TextView) findViewById(R.id.AccelerometerX);
         AccelerometerY = (TextView) findViewById(R.id.AccelerometerY);
         AccelerometerZ = (TextView) findViewById(R.id.AccelerometerZ);
+        AccelerometerAmpltd = (TextView) findViewById(R.id.AccelerometerAmpltd);
         GyroscopeX = (TextView) findViewById(R.id.GyroscopeX);
         GyroscopeY = (TextView) findViewById(R.id.GyroscopeY);
         GyroscopeZ = (TextView) findViewById(R.id.GyroscopeZ);
+        GyroscopeAmpltd = (TextView) findViewById(R.id.GyroscopeAmpltd);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,12 +81,21 @@ public class SensorMonitor extends AppCompatActivity implements SensorEventListe
             AccelerometerX.setText("X: "+sensorEvent.values[0]);
             AccelerometerY.setText("Y: "+sensorEvent.values[1]);
             AccelerometerZ.setText("Z: "+sensorEvent.values[2]);
+            AccelerometerAmplitude = Math.pow(sensorEvent.values[0],2) + Math.pow(sensorEvent.values[1],2)
+                    + Math.pow(sensorEvent.values[2],2);
+            AccelerometerAmplitude = Math.sqrt(AccelerometerAmplitude);
+            AccelerometerAmpltd.setText("Accelerometer Amplitude "+ AccelerometerAmplitude);
         }
         else if(Sensor.TYPE_GYROSCOPE == sensor.getType()){
             GyroscopeX.setText("X: "+sensorEvent.values[0]);
             GyroscopeY.setText("Y: "+sensorEvent.values[1]);
             GyroscopeZ.setText("Z: "+sensorEvent.values[2]);
+            GyroscopeAmplitude = Math.pow(sensorEvent.values[0],2) + Math.pow(sensorEvent.values[1],2) +
+                    Math.pow(sensorEvent.values[2],2);
+            GyroscopeAmplitude = Math.sqrt(GyroscopeAmplitude);
+            GyroscopeAmpltd.setText("Gyroscope Amplitude "+ GyroscopeAmplitude);
         }
+
 
     }
 

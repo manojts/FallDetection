@@ -50,6 +50,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="5sp"
                 android:layout_marginStart="10sp" />
+            <TextView
+                android:id="@+id/AccelerometerAmpltd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5sp"
+                android:layout_marginStart="10sp" />
         </LinearLayout>
 
         <TextView
@@ -88,6 +94,12 @@
 
             <TextView
                 android:id="@+id/GyroscopeZ"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5sp"
+                android:layout_marginStart="10sp" />
+            <TextView
+                android:id="@+id/GyroscopeAmpltd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5sp"
