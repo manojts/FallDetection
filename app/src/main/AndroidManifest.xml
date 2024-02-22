@@ -31,9 +31,6 @@
             android:name=".Profile"
             android:exported="false" />
         <activity
-            android:name=".SensorMonitor"
-            android:exported="false" />
-        <activity
             android:name=".RegisterUser"
             android:exported="false"
             android:theme="@style/Theme.Material3.Light.NoActionBar" />

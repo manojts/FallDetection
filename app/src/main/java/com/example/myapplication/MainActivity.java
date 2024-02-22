@@ -8,6 +8,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -20,6 +22,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -72,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         progressBar = findViewById(R.id.progressBar);
 
 
-
         sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         accelerometerSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         gyroscopeSensor = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
@@ -123,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
         startActivity(intent);
     }
-
 
 
     private boolean checkSmsPermission() {
@@ -250,30 +251,115 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void onFallDetected() {
-        if (user != null) {
-            Query query = databaseReference.orderByChild("email").equalTo(user.getEmail());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("UserData");
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser != null) {
+            Query query = databaseReference.orderByChild("email").equalTo(currentUser.getEmail());
             query.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String emergencyContactNumber = snapshot.child("getEmergencyContactNumber").getValue(String.class);
-                        if (emergencyContactNumber != null && !emergencyContactNumber.isEmpty()) {
-                            sendSMS(emergencyContactNumber, "Fall detected! This is an automatic message from the Sensor Monitor app.");
+                        String fallenPersonName = snapshot.child("userName").getValue(String.class);
+
+                        if (emergencyContactNumber != null && !emergencyContactNumber.isEmpty() && fallenPersonName != null && !fallenPersonName.isEmpty()) {
+                            if (checkLocationPermission()) {
+                                // Obtain the current location and handle it asynchronously
+                                getCurrentLocation(new LocationCallback() {
+                                    @Override
+                                    public void onLocationObtained(String location) {
+                                        // Create the SMS message with the location
+                                        String smsMessage = "Fall detected! " + fallenPersonName + " has fallen. Location: " + location;
+
+                                        // Send the SMS
+                                        sendSMS(emergencyContactNumber, smsMessage);
+                                    }
+                                });
+                            } else {
+                                // Request location permissions
+                                requestLocationPermission();
+                            }
+
                         } else {
-                            // Handle case where no emergency contact is available
-                            Toast.makeText(MainActivity.this, "No emergency contact number available", Toast.LENGTH_SHORT).show();
+                            // Handle case where no emergency contact or fallen person name is available
+                            Toast.makeText(MainActivity.this, "No emergency contact or fallen person name available", Toast.LENGTH_SHORT).show();
                         }
                         break; // Assuming each user has one unique entry
                     }
                 }
 
                 @Override
-                public void onCancelled(DatabaseError error) {
+                public void onCancelled(@NonNull DatabaseError error) {
                     // Handle database error
                 }
             });
         }
     }
+
+    private void requestLocationPermission() {
+        // Request location permissions
+        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+    }
+
+    private void getCurrentLocation(final LocationCallback callback) {
+        // Initialize the LocationManager
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        // Check for location provider availability
+        if (locationManager != null && (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER))) {
+
+            if (checkLocationPermission()) {
+
+                // Request a single location update
+                locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, new LocationListener() {
+                    @Override
+                    public void onLocationChanged(Location location) {
+                        // Handle the location change
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+
+                        // Create a Google Maps link
+                        String googleMapsLink = "https://maps.google.com/maps?q=" + latitude + "," + longitude;
+
+                        // Return the location information
+                        String locationInfo = "Latitude: " + latitude + ", Longitude: " + longitude + "\nGoogle Maps link: " + googleMapsLink;
+
+                        // Execute the callback with the location information
+                        callback.onLocationObtained(locationInfo);
+                    }
+
+                    @Override
+                    public void onStatusChanged(String provider, int status, Bundle extras) {
+                        // Handle status changes if needed
+                    }
+
+                    @Override
+                    public void onProviderEnabled(String provider) {
+                        // Handle provider enabled
+                    }
+
+                    @Override
+                    public void onProviderDisabled(String provider) {
+                        // Handle provider disabled
+                    }
+                }, null);
+            }
+
+        } else {
+            // Location provider is not available
+            Toast.makeText(MainActivity.this, "Location provider is not available", Toast.LENGTH_SHORT).show();
+            callback.onLocationObtained("Location not available");
+        }
+    }
+
+    // Define a callback interface
+    private interface LocationCallback {
+        void onLocationObtained(String location);
+    }
+
 
     private void sendSMS(String phoneNumber, String message) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
