@@ -59,6 +59,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 2;
 
     private boolean monitoringStarted = false;
+    private float ax = 5.0f;
+    private  float ay = 5.0f;
+    private float az = 5.0f;
 
 
     @Override
@@ -224,7 +227,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             potentialFallDetected = true;
             fallTime = System.currentTimeMillis();
         }
-
+        else if(Math.abs(event.values[0] - ax)>10){
+            potentialFallDetected = true;
+            fallTime = System.currentTimeMillis();
+        }
+        else if(Math.abs(event.values[1] - ay)>10){
+            potentialFallDetected = true;
+            fallTime = System.currentTimeMillis();
+        }
+        else if(Math.abs(event.values[2] - az)>10){
+            potentialFallDetected = true;
+            fallTime = System.currentTimeMillis();
+        }
+        ax = event.values[0];
+        ay = event.values[1];
+        az = event.values[2];
         if (potentialFallDetected && (System.currentTimeMillis() - fallTime > POST_FALL_ACTIVITY_DELAY)) {
             if (significantRotationDetected) {
                 onFallDetected();
