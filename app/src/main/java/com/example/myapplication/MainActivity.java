@@ -38,6 +38,11 @@ import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+    private static class SensorData {
+        float accelX, accelY, accelZ;
+        float gyroX, gyroY, gyroZ;
+    }
+    private SensorData sensorData = new SensorData();
 
     private SensorManager sensorManager;
     private Sensor accelerometerSensor, gyroscopeSensor;
@@ -62,7 +67,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private float ax = 5.0f;
     private  float ay = 5.0f;
     private float az = 5.0f;
-
+    private float rotationMagnitude;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,29 +218,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            handleAccelerometerData(event);
-        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+        if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            sensorData.gyroX = event.values[0];
+            sensorData.gyroY = event.values[1];
+            sensorData.gyroZ = event.values[2];
             handleGyroscopeData(event);
+        }
+        else if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            sensorData.accelX = event.values[0];
+            sensorData.accelY = event.values[1];
+            sensorData.accelZ = event.values[2];
+            handleAccelerometerData(event);
         }
     }
 
     private void handleAccelerometerData(SensorEvent event) {
         float SMV = calculateSMV(event.values);
-
         if (SMV > FALL_THRESHOLD) {
             potentialFallDetected = true;
             fallTime = System.currentTimeMillis();
         }
-        else if(Math.abs(event.values[0] - ax)>10){
+        else if(Math.abs(event.values[0] - ax) > 12.6 && rotationMagnitude > GYROSCOPE_THRESHOLD){
             potentialFallDetected = true;
             fallTime = System.currentTimeMillis();
         }
-        else if(Math.abs(event.values[1] - ay)>10){
+        else if(Math.abs(event.values[1] - ay) > 12.8 && rotationMagnitude > GYROSCOPE_THRESHOLD){
             potentialFallDetected = true;
             fallTime = System.currentTimeMillis();
         }
-        else if(Math.abs(event.values[2] - az)>10){
+        else if(Math.abs(event.values[2] - az) > 25 && rotationMagnitude > GYROSCOPE_THRESHOLD){
             potentialFallDetected = true;
             fallTime = System.currentTimeMillis();
         }
@@ -252,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void handleGyroscopeData(SensorEvent event) {
-        float rotationMagnitude = calculateRotationMagnitude(event.values);
+        rotationMagnitude = calculateRotationMagnitude(event.values);
 
         if (rotationMagnitude > GYROSCOPE_THRESHOLD) {
             significantRotationDetected = true;
